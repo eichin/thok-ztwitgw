@@ -79,11 +79,12 @@ def process_new_twits():
     # print "etag:", etag
     # print "lastmod:", lastmod
     twits = simplejson.loads(rawtwits)
-    for twit in reversed(twits):
-        who = twit["user"]["screen_name"]
-        what = twit["text"]
-        zwrite(who, what)
-
+    if twits: # bug: we get None instead of [] if nothing changed
+        for twit in reversed(twits):
+            who = twit["user"]["screen_name"]
+            what = twit["text"]
+            zwrite(who, what)
+            
     newlast = file(lastfile, "w")
     print >> newlast, etag
     print >> newlast, lastmod
