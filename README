@@ -4,7 +4,7 @@ Simple twitter to zephyr gateway (one way, so I can get twitter messages in my z
 
 The API docs say "100/hour", "please use if-modified-since", "basic auth only", and "xml, json, rss, or atom."
 
-json is first-class in later versions of python, so let's use {{{simplejson}}} for now. That gives us an array of twits, which are just dicts; looks like I want {{{t["text"]}}} for the body, {{{t["user"]["screen_name"]}}} for the fake sender, and ignore the rest for now; maybe add the reply, location, or user.name in the zsig later, and maybe filter on user.protected if that actually turns out to mean something.
+json is first-class in later versions of python, so let's use {{{simplejson}}} for now. That gives us an array of twits, which are just dicts; looks like I want {{{t["text"]}}} for the body, {{{t["user"]["screen_name"]}}} for the fake sender, and ignore the rest for now; maybe add the reply, location, or {{{user.name}}} in the zsig later, and maybe filter on {{{user.protected}}} if that actually turns out to mean something.
 
 Since etag/if-modified-since seem reliable enough, I won't bother stashing messages at all, just history.
 
