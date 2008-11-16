@@ -31,7 +31,7 @@ def get_changed_content(url, etag=None, lastmod=None):
         u = uo.open(url)
     except IOError, e:
         if e[0] == "http error" and e[1] == 304:
-            return None
+            return None, None, None
         raise
     if u.headers.has_key("ETag"):
         etag = u.headers["ETag"]
@@ -73,17 +73,15 @@ def process_new_twits():
     if os.path.exists(lastfile):
         etag, lastmod = file(lastfile, "r").read().splitlines()
 
-    rawtwits, etag, lastmod = get_changed_content(embed_basicauth(twit_url, username, pw),
-                                                  etag, lastmod)
-
-    # print "etag:", etag
-    # print "lastmod:", lastmod
+    newurl = embed_basicauth(twit_url, username, pw)
+    rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
+    if not rawtwits:
+        return # nothing new, don't update either
     twits = simplejson.loads(rawtwits)
-    if twits: # bug: we get None instead of [] if nothing changed
-        for twit in reversed(twits):
-            who = twit["user"]["screen_name"]
-            what = twit["text"]
-            zwrite(who, what)
+    for twit in reversed(twits):
+        who = twit["user"]["screen_name"]
+        what = twit["text"]
+        zwrite(who, what)
             
     newlast = file(lastfile, "w")
     print >> newlast, etag
