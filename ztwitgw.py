@@ -8,6 +8,7 @@ import sys
 import os
 import getpass
 import subprocess
+import time
 
 urllib.URLopener.version = "thok.org-ztwitgw.py-one-way-zephyr-gateway/0.1"
 
@@ -42,6 +43,7 @@ def get_changed_content(url, etag=None, lastmod=None):
     return (s, etag, lastmod)
 
 twit_url = "http://twitter.com/statuses/friends_timeline.json"
+replies_url = "http://twitter.com/statuses/replies.json"
 def embed_basicauth(url, user, passwd):
     """stuff basicauth username/password into a url"""
     # could use urllib2 and a real basicauth handler...
@@ -52,20 +54,22 @@ def embed_basicauth(url, user, passwd):
 
 assert "http://a:b@c/" == embed_basicauth("http://c/", "a", "b")
 
-def zwrite(username, body):
+def zwrite(username, body, tag):
     """deliver one twitter message to zephyr"""
     cmd = ["zwrite",
            "-q", # quiet
            "-d", # Don't authenticate
-           "-s", "%s via ztwitgw" % username,
+           "-s", "%s %s%svia ztwitgw" % (username, tag, tag and " "),
            "-c", "%s.twitter" % getpass.getuser(),
            "-i", username,
            "-m", body]
     subprocess.check_call(cmd)
            
-def process_new_twits():
+def process_new_twits(url=twit_url, tag=""):
     """process new messages, stashing markers"""
     filebase = os.path.expanduser("~/.ztwit_")
+    if tag:
+        filebase = filebase + tag + "_"
     username, pw = file(filebase + "auth", "r").read().strip().split(":", 1)
     lastfile = filebase + "last"
     etag = None
@@ -73,15 +77,23 @@ def process_new_twits():
     if os.path.exists(lastfile):
         etag, lastmod = file(lastfile, "r").read().splitlines()
 
-    newurl = embed_basicauth(twit_url, username, pw)
-    rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
+    newurl = embed_basicauth(url, username, pw)
+    try:
+        rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
+    except IOError, (kind, code, message, headers):
+        if 500 <= code <= 599:
+            print >> sys.stderr, code, message, "-- sleeping"
+            time.sleep(90)
+            sys.exit()
+        else:
+            raise
     if not rawtwits:
         return # nothing new, don't update either
     twits = simplejson.loads(rawtwits)
     for twit in reversed(twits):
         who = twit["user"]["screen_name"]
         what = twit["text"]
-        zwrite(who, what)
+        zwrite(who, what, tag)
             
     newlast = file(lastfile, "w")
     print >> newlast, etag
@@ -91,3 +103,4 @@ def process_new_twits():
 if __name__ == "__main__":
     prog, = sys.argv
     process_new_twits()
+    process_new_twits(url=replies_url, tag="reply")

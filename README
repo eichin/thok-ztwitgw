@@ -12,3 +12,9 @@ Yay brute force.  27m total including some manual testing.
 
 Footnotes:
   * api doc http://apiwiki.twitter.com/REST+API+Documentation
+
+[eichin:20081118T2209-05]
+
+On a whim, refactored to support {{{@replies}}} too; I'm not sure if the 100/hour applies to each interface or any, but "two every 90s" is still only 80/hour.  (Also not sure if the change particularly works, since the one {{{@}}}-reference to me wasn't the first one in the message.  It's rather straightforward, though.)
+
+It's run quietly for two days now; I did get one {{{502 Bad Gateway}}} which is apparently "returned if Twitter is down or being upgraded"; looks like all of the 5xx codes can be handled by sleeping a little extra rather than outright failing, so I've added that too.
