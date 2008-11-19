@@ -68,9 +68,9 @@ def zwrite(username, body, tag):
 def process_new_twits(url=twit_url, tag=""):
     """process new messages, stashing markers"""
     filebase = os.path.expanduser("~/.ztwit_")
+    username, pw = file(filebase + "auth", "r").read().strip().split(":", 1)
     if tag:
         filebase = filebase + tag + "_"
-    username, pw = file(filebase + "auth", "r").read().strip().split(":", 1)
     lastfile = filebase + "last"
     etag = None
     lastmod = None
