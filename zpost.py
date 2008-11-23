@@ -4,9 +4,10 @@
 
 (mostly to share a common password file with ztwitgw)"""
 
-import urllib
-import simplejson
 import sys
+import os
+import urllib
+import optparse
 from ztwitgw import embed_basicauth, MyFancyURLopener
 
 urllib.URLopener.version = "thok.org-zpost.py/0.1"
@@ -33,17 +34,18 @@ def zpost(body):
     # let the exceptions bubble up
     s = u.read()
     u.close()
+    return s
 
 if __name__ == "__main__":
     parser = optparse.OptionParser(usage=__doc__)
     parser.add_option("--message", "-m", action="store_true",
                       help="send the remaining args as the message")
-    options, cmd = parser.parse_args()
+    options, args = parser.parse_args()
 
     if options.message:
         message = " ".join(args)
-        zpost(message)
+        print zpost(message)
     else:
         print "Type your message now.  End with control-D."
         message = sys.stdin.read()
-        zpost(message)
+        print zpost(message)
