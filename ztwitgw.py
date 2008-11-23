@@ -80,11 +80,17 @@ def process_new_twits(url=twit_url, tag=""):
     newurl = embed_basicauth(url, username, pw)
     try:
         rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
-    except IOError, (kind, code, message, headers):
-        if 500 <= code <= 599:
-            print >> sys.stderr, code, message, "-- sleeping"
-            time.sleep(90)
-            sys.exit()
+    except IOError, ioe:
+        if ioe[0] == "http error" and len(ioe) == 4:
+            # "http error" would be enough, given http_error_default, except
+            # that open_http gives a 1-arg one if host is empty...
+            (kind, code, message, headers) = ioe
+            if 500 <= code <= 599:
+                print >> sys.stderr, code, message, "-- sleeping"
+                time.sleep(90)
+                sys.exit()
+            else:
+                raise
         else:
             raise
     if not rawtwits:
