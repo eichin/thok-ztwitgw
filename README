@@ -18,3 +18,14 @@ Footnotes:
 On a whim, refactored to support {{{@replies}}} too; I'm not sure if the 100/hour applies to each interface or any, but "two every 90s" is still only 80/hour.  (Also not sure if the change particularly works, since the one {{{@}}}-reference to me wasn't the first one in the message.  It's rather straightforward, though.)
 
 It's run quietly for two days now; I did get one {{{502 Bad Gateway}}} which is apparently "returned if Twitter is down or being upgraded"; looks like all of the 5xx codes can be handled by sleeping a little extra rather than outright failing, so I've added that too.
+
+[eichin:20081122T2302-05]
+
+Fixed another error handling case ({{{urllib}}} is ancient, and uses the poor practice of raising {{{IOError}}} with several different shapes of argument list, making it harder to catch cleanly.)  Also implemented a simple posting client, so that I could call it from my KPhotoAlbum to Flickr uploader and announce when I had new pictures (something I sometimes announce on Zephyr too, but it seems slightly less appropriate to automatically post there, and I currently only do when there's something of note.)
+
+Found an interesting article comparing the author/audience aspects of RSS vs. Twitter - it seems that the Twitter dynamic manages to be simultaneously more casual *and* more engaging, which perhaps deserves a little thought.
+
+Footnotes:
+  * KPhotoAlbum http://www.kphotoalbum.org/
+  * Flickr http://www.flickr.com/photos/eichin/
+  * http://www.dailyblogtips.com/twitter-followers-vs-rss-subscribers/
