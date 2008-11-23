@@ -30,7 +30,7 @@ def zpost(body):
     username, pw = get_auth_info()
     posturl = embed_basicauth(update_url, username, pw)
     uo = MyFancyURLopener()
-    u = uo.open(posturl, dict(status=body))
+    u = uo.open(posturl, urllib.urlencode(dict(status=body)))
     # let the exceptions bubble up
     s = u.read()
     u.close()
