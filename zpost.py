@@ -8,6 +8,7 @@ import sys
 import os
 import urllib
 import optparse
+import simplejson
 from ztwitgw import embed_basicauth, MyFancyURLopener
 
 urllib.URLopener.version = "thok.org-zpost.py/0.1"
@@ -15,7 +16,7 @@ urllib.URLopener.version = "thok.org-zpost.py/0.1"
 # http://apiwiki.twitter.com/REST+API+Documentation says:
 # curl -u email:password -d status="your message here" http://twitter.com/statuses/update.xml 
 
-update_url = "http://twitter.com/statuses/update.xml"
+update_url = "http://twitter.com/statuses/update.json"
 
 def get_auth_info():
     """get this user's auth info"""
@@ -32,8 +33,9 @@ def zpost(body):
     uo = MyFancyURLopener()
     u = uo.open(posturl, urllib.urlencode(dict(status=body)))
     # let the exceptions bubble up
-    s = u.read()
+    raw_s = u.read()
     u.close()
+    s = simplejson.loads(raw_s)
     return s
 
 if __name__ == "__main__":
