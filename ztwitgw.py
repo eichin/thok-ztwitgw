@@ -81,10 +81,13 @@ def process_new_twits(url=twit_url, tag=""):
     try:
         rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
     except IOError, ioe:
-        if ioe[0] == "http error" and len(ioe) == 4:
+        if ioe[0] == "http error":
             # "http error" would be enough, given http_error_default, except
             # that open_http gives a 1-arg one if host is empty...
-            (kind, code, message, headers) = ioe
+            try:
+                (kind, code, message, headers) = ioe
+            except IndexError:
+                raise ioe
             if 500 <= code <= 599:
                 print >> sys.stderr, code, message, "-- sleeping"
                 time.sleep(90)
