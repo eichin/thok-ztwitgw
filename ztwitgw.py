@@ -56,6 +56,9 @@ assert "http://a:b@c/" == embed_basicauth("http://c/", "a", "b")
 
 def zwrite(username, body, tag):
     """deliver one twitter message to zephyr"""
+    # username... will get encoded when we see one
+    body = body.encode("iso-8859-1", "xmlcharrefreplace")
+    # tag is from codde
     cmd = ["zwrite",
            "-q", # quiet
            "-d", # Don't authenticate
