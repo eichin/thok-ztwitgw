@@ -97,6 +97,11 @@ def process_new_twits(url=twit_url, tag=""):
                 sys.exit()
             else:
                 raise
+        if ioe[0] == "http protocol error":
+            # IOError: ('http protocol error', 0, 'got a bad status line', None)
+            print >> sys.stderr, ioe, "-- sleeping"
+            time.sleep(90)
+            sys.exit()
         else:
             raise
     if not rawtwits:
