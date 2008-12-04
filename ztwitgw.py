@@ -103,7 +103,7 @@ def process_new_twits(url=twit_url, tag=""):
             print >> sys.stderr, ioe, "-- sleeping"
             time.sleep(90)
             sys.exit()
-        elif IOError.errno = errno.ETIMEDOUT:
+        elif IOError.errno == errno.ETIMEDOUT:
             # IOError: [Errno socket error] (110, 'Connection timed out')
             print >> sys.stderr, ioe, "-- sleeping longer"
             time.sleep(90)
