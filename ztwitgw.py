@@ -9,6 +9,7 @@ import os
 import getpass
 import subprocess
 import time
+import errno
 
 urllib.URLopener.version = "thok.org-ztwitgw.py-one-way-zephyr-gateway/0.1"
 
@@ -97,9 +98,14 @@ def process_new_twits(url=twit_url, tag=""):
                 sys.exit()
             else:
                 raise
-        if ioe[0] == "http protocol error":
+        elif ioe[0] == "http protocol error":
             # IOError: ('http protocol error', 0, 'got a bad status line', None)
             print >> sys.stderr, ioe, "-- sleeping"
+            time.sleep(90)
+            sys.exit()
+        elif IOError.errno = errno.ETIMEDOUT:
+            # IOError: [Errno socket error] (110, 'Connection timed out')
+            print >> sys.stderr, ioe, "-- sleeping longer"
             time.sleep(90)
             sys.exit()
         else:
