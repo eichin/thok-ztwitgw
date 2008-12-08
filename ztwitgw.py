@@ -69,6 +69,15 @@ def zwrite(username, body, tag):
            "-m", body]
     subprocess.check_call(cmd)
            
+def entity_decode(txt):
+    """decode simple entities"""
+    # TODO: find out what ones twitter considers defined,
+    #   or if sgmllib.entitydefs is enough...
+    return txt.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&")
+
+# turns out we don't actually see &amp; in practice...
+assert entity_decode("-&gt; &lt;3") == "-> <3"
+
 def process_new_twits(url=twit_url, tag=""):
     """process new messages, stashing markers"""
     filebase = os.path.expanduser("~/.ztwit_")
@@ -115,7 +124,7 @@ def process_new_twits(url=twit_url, tag=""):
     twits = simplejson.loads(rawtwits)
     for twit in reversed(twits):
         who = twit["user"]["screen_name"]
-        what = twit["text"]
+        what = entity_decode(twit["text"])
         zwrite(who, what, tag)
             
     newlast = file(lastfile, "w")
