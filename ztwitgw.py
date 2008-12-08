@@ -117,6 +117,8 @@ def process_new_twits(url=twit_url, tag=""):
             print >> sys.stderr, ioe, "-- sleeping longer"
             time.sleep(90)
             sys.exit()
+        # got one of these, but that should imply a bug on my side?
+        # IOError: ('http error', 400, 'Bad Request', <httplib.HTTPMessage instance at 0xb7b48d0c>)
         else:
             raise
     if not rawtwits:
