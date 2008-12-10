@@ -29,3 +29,18 @@ Footnotes:
   * KPhotoAlbum http://www.kphotoalbum.org/
   * Flickr http://www.flickr.com/photos/eichin/
   * http://www.dailyblogtips.com/twitter-followers-vs-rss-subscribers/
+
+[eichin:20081210T0015-05]
+
+Got one negative comment about the flickr updates, decided to interpret it as "make them more interesting" rather than actually *stopping* them (after all, playing with the tools is more than half of what this is about - I'm not trying to find strangers here, or anything...)
+
+The flickr updates now include as many tags as they can, sorted by popularity and length, so the latest one says {{{[Concord,Great Meadows National Wildlife Refuge,Massachusetts,ice,sunshine,winter,marsh...]}}} which perhaps gives the reader an idea of what pictures they'll find.  (Granted, most of my readers are local, so knowing me and knowing the weather is probably sufficient to guess :-)  Not realizing that python's sort is stable in 2.4 and later, I counted tags and used a key of {{{tag_popularity[tag] - 1/float(len(tag))}}} (the value itself is the major key, putting everything into integer buckets, and the tag length reduces that - the shorter the tag, the more it reduces, so the closer to the start of the list of tags that length, but bounded between 1/1 and 1/longest-tag-len, approaching zero, so the values fit.  Of course we want high popularity first, so this is a reverse sort, so we're actually favoring longer tags, based on them likely having more inherent detail.)  This is what we call "excessively clever" - given a stable sort, we could just sort the list twice:
+
+  * {{{tags = sorted(tag_popularity, key=len)}}}
+  * {{{tags = sorted(tags, key=tag_popularity.__getitem__)}}}
+
+and then {{{reverse}}} the whole thing.  (Notice that sort-stability is the place where {{{sorted(reverse=True)}}} is different from {{{reversed(sorted())}}} - the former reverses the direction of the current key, but preserves the order of things that were equal; the later reverses everything.)
+
+Future directions could include
+  * saving 18 characters by shortening the reference (oh, I can save 11 of those just by using flickr's own shortcuts, *done*)
+  * keeping track of *all* tags and using global popularity (to support expressing both "what this set is mostly about" and "what distinct cool things are in here" at the same time, chopping out the middle...)  This may have to wait until I re-unify all of my photo data sets into one master gallery, though.  (Cheap storage scaling may make that happen sooner than later, even if I do take over 20G/year of pictures *now*...)
