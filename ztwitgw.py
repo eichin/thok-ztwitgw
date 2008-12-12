@@ -119,6 +119,8 @@ def process_new_twits(url=twit_url, tag=""):
             sys.exit()
         # got one of these, but that should imply a bug on my side?
         # IOError: ('http error', 400, 'Bad Request', <httplib.HTTPMessage instance at 0xb7b48d0c>)
+        # this one is special too...
+        # IOError: ('http error', 404, 'Not Found', <httplib.HTTPMessage instance at 0xb7ad5eec>)
         else:
             raise
     if not rawtwits:
