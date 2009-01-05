@@ -27,7 +27,7 @@ def get_auth_info():
 
 def zpost(body):
     """post body to twitter"""
-    assert len(body) < 140
+    assert len(body) <= 140
     username, pw = get_auth_info()
     posturl = embed_basicauth(update_url, username, pw)
     uo = MyFancyURLopener()
