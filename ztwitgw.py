@@ -55,6 +55,12 @@ def embed_basicauth(url, user, passwd):
 
 assert "http://a:b@c/" == embed_basicauth("http://c/", "a", "b")
 
+def embed_since_id(url, since_id):
+    """add a since_id argument"""
+    # http://apiwiki.twitter.com/REST+API+Documentation#statuses/friendstimeline
+    assert "?" not in url, "add support for merging since_id with other url args!"
+    return url + "?since_id=%s" % since_id
+
 def zwrite(username, body, tag):
     """deliver one twitter message to zephyr"""
     # username... will get encoded when we see one
@@ -91,6 +97,14 @@ def process_new_twits(url=twit_url, tag=""):
         etag, lastmod = file(lastfile, "r").read().splitlines()
 
     newurl = embed_basicauth(url, username, pw)
+    
+    sincefile = filebase + "since"
+    since_id = None
+    if os.path.exists(sincefile):
+        since_id = file(sincefile, "r").read().strip()
+        if since_id: # allow for truncated file
+            newurl = embed_since_id(newurl, since_id)
+
     try:
         rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
     except IOError, ioe:
@@ -130,11 +144,16 @@ def process_new_twits(url=twit_url, tag=""):
         who = twit["user"]["screen_name"]
         what = entity_decode(twit["text"])
         zwrite(who, what, tag)
+        since_id = twit["id"]
             
     newlast = file(lastfile, "w")
     print >> newlast, etag
     print >> newlast, lastmod
     newlast.close()
+
+    newsince = file(sincefile, "w")
+    print >> newsince, since_id
+    newsince.close()
 
 if __name__ == "__main__":
     prog, = sys.argv
