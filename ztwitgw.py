@@ -135,6 +135,7 @@ def process_new_twits(url=twit_url, tag=""):
         # IOError: ('http error', 400, 'Bad Request', <httplib.HTTPMessage instance at 0xb7b48d0c>)
         # this one is special too...
         # IOError: ('http error', 404, 'Not Found', <httplib.HTTPMessage instance at 0xb7ad5eec>)
+        # TODO: IOError: [Errno socket error] (104, 'Connection reset by peer')
         else:
             raise
     if not rawtwits:
