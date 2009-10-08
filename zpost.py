@@ -25,6 +25,7 @@ def get_auth_info():
     return username, pw
 
 
+# TODO: retry on 408, maybe others?
 def zpost(body):
     """post body to twitter"""
     assert len(body) <= 140
