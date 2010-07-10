@@ -61,15 +61,18 @@ def embed_since_id(url, since_id):
     assert "?" not in url, "add support for merging since_id with other url args!"
     return url + "?since_id=%s" % since_id
 
-def zwrite(username, body, tag):
+def zwrite(username, body, tag, status_id=None):
     """deliver one twitter message to zephyr"""
     # username... will get encoded when we see one
     body = body.encode("iso-8859-1", "xmlcharrefreplace")
+    # example syntax: http://twitter.com/engadget/status/18164103530
+    zurl = " http://twitter.com/%s/status/%s" % (username, status_id) if status_id else ""
+    zsig = "%s %s%svia ztwitgw%s" % (username, tag, tag and " ", zurl),
     # tag is from codde
     cmd = ["zwrite",
            "-q", # quiet
            "-d", # Don't authenticate
-           "-s", "%s %s%svia ztwitgw" % (username, tag, tag and " "),
+           "-s", zsig,
            "-c", "%s.twitter" % getpass.getuser(),
            "-i", username,
            "-m", body]
@@ -144,8 +147,9 @@ def process_new_twits(url=twit_url, tag=""):
     for twit in reversed(twits):
         who = twit["user"]["screen_name"]
         what = entity_decode(twit["text"])
-        zwrite(who, what, tag)
-        since_id = twit["id"]
+        status_id = twit["id"]  # to construct a link
+        zwrite(who, what, tag, status_id)
+        since_id = status_id
             
     newlast = file(lastfile, "w")
     print >> newlast, etag
