@@ -57,7 +57,7 @@ assert "http://a:b@c/" == embed_basicauth("http://c/", "a", "b")
 
 def embed_since_id(url, since_id):
     """add a since_id argument"""
-    # http://apiwiki.twitter.com/REST+API+Documentation#statuses/friendstimeline
+    # http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-statuses-friends_timeline
     assert "?" not in url, "add support for merging since_id with other url args!"
     return url + "?since_id=%s" % since_id
 
