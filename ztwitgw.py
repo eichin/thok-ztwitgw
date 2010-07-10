@@ -67,7 +67,7 @@ def zwrite(username, body, tag, status_id=None):
     body = body.encode("iso-8859-1", "xmlcharrefreplace")
     # example syntax: http://twitter.com/engadget/status/18164103530
     zurl = " http://twitter.com/%s/status/%s" % (username, status_id) if status_id else ""
-    zsig = "%s %s%svia ztwitgw%s" % (username, tag, tag and " ", zurl),
+    zsig = "%s %s%svia ztwitgw%s" % (username, tag, tag and " ", zurl)
     # tag is from codde
     cmd = ["zwrite",
            "-q", # quiet
