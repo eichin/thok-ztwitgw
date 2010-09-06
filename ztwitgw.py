@@ -10,6 +10,7 @@ import getpass
 import subprocess
 import time
 import errno
+import signal
 
 urllib.URLopener.version = "thok.org-ztwitgw.py-one-way-zephyr-gateway/0.1"
 
@@ -61,6 +62,14 @@ def embed_since_id(url, since_id):
     assert "?" not in url, "add support for merging since_id with other url args!"
     return url + "?since_id=%s" % since_id
 
+def embed_backdoor(url):
+    """add basic auth back doorargument"""
+    # zephyr, via tibbetts
+    if "?" in url:
+        return url + "&source=twitterandroid"
+    else:
+        return url + "?source=twitterandroid"
+
 def zwrite(username, body, tag, status_id=None):
     """deliver one twitter message to zephyr"""
     # username... will get encoded when we see one
@@ -108,6 +117,8 @@ def process_new_twits(url=twit_url, tag=""):
         if since_id: # allow for truncated file
             newurl = embed_since_id(newurl, since_id)
 
+    newurl = embed_backdoor(newurl)
+
     try:
         rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
     except IOError, ioe:
@@ -145,6 +156,10 @@ def process_new_twits(url=twit_url, tag=""):
         return # nothing new, don't update either
     twits = simplejson.loads(rawtwits)
     for twit in reversed(twits):
+        if not twit:
+            print "huh? empty twit"
+            continue
+        # who = twit["user"].get("screen_name", "Unknown Screen Name %r" % (twit["user"]))
         who = twit["user"]["screen_name"]
         what = entity_decode(twit["text"])
         status_id = twit["id"]  # to construct a link
@@ -161,6 +176,7 @@ def process_new_twits(url=twit_url, tag=""):
     newsince.close()
 
 if __name__ == "__main__":
+    signal.alarm(5*60) # been seeing some hangs, give up after a bit
     prog, = sys.argv
     process_new_twits()
     process_new_twits(url=replies_url, tag="reply")
