@@ -9,7 +9,7 @@ import os
 import urllib
 import optparse
 import simplejson
-from ztwitgw import embed_basicauth, MyFancyURLopener
+from ztwitgw import embed_basicauth, embed_backdoor, MyFancyURLopener
 
 urllib.URLopener.version = "thok.org-zpost.py/0.1"
 
@@ -31,6 +31,7 @@ def zpost(body):
     assert len(body) <= 140
     username, pw = get_auth_info()
     posturl = embed_basicauth(update_url, username, pw)
+    posturl = embed_backdoor(posturl)
     uo = MyFancyURLopener()
     u = uo.open(posturl, urllib.urlencode(dict(status=body)))
     # let the exceptions bubble up
