@@ -1,1 +1,2 @@
-while ./ztwitgw.py ; do sleep 90; done
+# while ./ztwitgw.py ; do sleep 90; done
+while true; do ./ztwitgw.py ;  sleep 90; done
