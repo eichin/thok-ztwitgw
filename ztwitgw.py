@@ -46,11 +46,15 @@ def get_changed_content(url, etag=None, lastmod=None):
 
 twit_url = "http://twitter.com/statuses/friends_timeline.json"
 replies_url = "http://twitter.com/statuses/replies.json"
+favorites_url = "http://api.twitter.com/1/favorites/%U.json"
+
 def embed_basicauth(url, user, passwd):
     """stuff basicauth username/password into a url"""
     # could use urllib2 and a real basicauth handler...
     # but the url is constant, so be lazy.
     assert url.startswith("http://")
+    if "%U" in url:
+        url = url.replace("%U", user)
     tag, path = url.split("://", 1)
     return tag + "://" + user + ":" + passwd + "@" + path
 
@@ -180,3 +184,4 @@ if __name__ == "__main__":
     prog, = sys.argv
     process_new_twits()
     process_new_twits(url=replies_url, tag="reply")
+    process_new_twits(url=favorites_url, tag="favorites")
