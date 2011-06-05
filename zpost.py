@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# Copyright (c) 2008-2011 Mark Eichin <eichin@thok.org>
+# See ./LICENSE (MIT style.)
+
 """zwrite-like twitter poster
 
 (mostly to share a common password file with ztwitgw)"""

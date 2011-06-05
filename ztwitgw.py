@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# Copyright (c) 2008-2011 Mark Eichin <eichin@thok.org>
+# See ./LICENSE (MIT style.)
+
 """take recent twitters and zephyr them to me"""
 
 import urllib
