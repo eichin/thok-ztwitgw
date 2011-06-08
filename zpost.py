@@ -18,7 +18,7 @@ import optparse
 import simplejson
 from ztwitgw import embed_basicauth, embed_backdoor, MyFancyURLopener
 
-urllib.URLopener.version = "thok.org-zpost.py/0.1"
+urllib.URLopener.version = "thok.org-zpost.py/%s" % __version__
 
 # http://apiwiki.twitter.com/REST+API+Documentation says:
 # curl -u email:password -d status="your message here" http://twitter.com/statuses/update.xml 

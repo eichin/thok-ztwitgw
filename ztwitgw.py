@@ -19,7 +19,7 @@ import time
 import errno
 import signal
 
-urllib.URLopener.version = "thok.org-ztwitgw.py-one-way-zephyr-gateway/0.1"
+urllib.URLopener.version = "thok.org-ztwitgw.py-one-way-zephyr-gateway/%s" % __version__
 
 # from comick.py - either I should come up with my *own* library
 #  for this, or find some existing library that has come out since
