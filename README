@@ -6,21 +6,17 @@ messaging platform, and gateway other things to it; thus, a Twitter
 gateway and posting client.
 
 ztwitgw takes the timeline, replies, and favorites, and sends them as
-individual "ZephyrGrams".  Note that it used basicauth... and then
-when that went away, used the twitterandroid backdoor.  Now that
-that's gone (though it came back to life for a few bursts in early
-2011) this code needs to use OAUTH - I've stalled long enough on
-hoping that twitter would come up with something less atrocious for
-non-web clients, but it's pretty clear that's not going to happen, so
-development of OAUTH support (probably based on tweepy) will happen here.
+individual "ZephyrGrams".  It was recently ported to tweepy in order
+to get Oauth support; this works, but I still haven't figured out how
+to not-distribute the consumer_secret.
 
 zpost is like the classic Zephyr "zwrite" - an easy to use
 fire-and-forget message sender, the kind of thing that made it easy to
 integrate notification into everything (print queuing, builder loops,
 test loops, anything you could run a shell command from.)  My biggest
 current use of it is for posting summaries of picture-upload batches
-directly from my kphotoalbum flickr upload tool.  It *also* needs to
-add OAUTH support.
+directly from my kphotoalbum flickr upload tool.  It's also now on
+tweepy, with the same caveats about consumer_secret.
 
 (See README-thok or the upstream link for dev history; this was pulled
 in to github using git-cvsimport.)
