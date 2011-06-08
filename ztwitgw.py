@@ -5,6 +5,10 @@
 
 """take recent twitters and zephyr them to me"""
 
+__version__ = "0.1"
+__author__  = "Mark Eichin <eichin@thok.org>"
+__license__ = "MIT"
+
 import urllib
 import simplejson
 import sys

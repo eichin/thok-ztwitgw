@@ -7,6 +7,10 @@
 
 (mostly to share a common password file with ztwitgw)"""
 
+__version__ = "0.1"
+__author__  = "Mark Eichin <eichin@thok.org>"
+__license__ = "MIT"
+
 import sys
 import os
 import urllib
