@@ -5,79 +5,55 @@
 
 """take recent twitters and zephyr them to me"""
 
-__version__ = "0.1"
+__version__ = "0.2"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
-import urllib
-import simplejson
 import sys
 import os
 import getpass
 import subprocess
-import time
-import errno
 import signal
+import tweepy
+import time
 
-urllib.URLopener.version = "thok.org-ztwitgw.py-one-way-zephyr-gateway/%s" % __version__
+def get_oauth_info():
+    """get this user's oauth info"""
+    filebase = os.path.expanduser("~/.ztwit_")
+    key, secret = file(filebase + "oauth", "r").read().strip().split(":", 1)
+    return key, secret
 
-# from comick.py - either I should come up with my *own* library
-#  for this, or find some existing library that has come out since
-#  2003 that already does (maybe pycurl...)
-class MyFancyURLopener(urllib.FancyURLopener):
-    """prevent implicit basicauth prompting"""
-    http_error_default = urllib.URLopener.http_error_default
-    # don't allow password prompts
-    prompt_user_passwd = lambda self, host, realm: (None, None)
+# TODO: write get_verifier_X11
 
-def get_changed_content(url, etag=None, lastmod=None):
-    """get changed content based on etag/lastmod"""
-    uo = MyFancyURLopener()
-    if etag:
-        uo.addheader("If-None-Match", etag)
-    if lastmod:
-        uo.addheader("If-Modified-Since", lastmod)
-    try:
-        u = uo.open(url)
-    except IOError, e:
-        if e[0] == "http error" and e[1] == 304:
-            return None, None, None
-        raise
-    if u.headers.has_key("ETag"):
-        etag = u.headers["ETag"]
-    if u.headers.has_key("Last-Modified"):
-        lastmod = u.headers["Last-Modified"]
-    s = u.read()
-    u.close()
-    return (s, etag, lastmod)
+def get_verifier_tty(output_path):
+    """we don't have a verifier, ask the user to use a browser and get one"""
+    consumer_token, consumer_secret = get_oauth_info()
+    auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
+    redirect_url = auth.get_authorization_url() # tweepy.TweepError
+    print "Open this URL in a browser where you're logged in to twitter:"
+    print redirect_url
+    verifier = raw_input("Enter (cut&paste) the response code: ")
+    # use it...
+    auth.get_access_token(verifier)
+    # hmm, discard the verifier?
+    file(output_path, "wb").write(":".join([auth.request_token.key, 
+                                            auth.request_token.secret, 
+                                            auth.access_token.key,
+                                            auth.access_token.secret,
+                                            verifier]))
+    
 
-twit_url = "http://twitter.com/statuses/friends_timeline.json"
-replies_url = "http://twitter.com/statuses/replies.json"
-favorites_url = "http://api.twitter.com/1/favorites.json"
+def get_oauth_verifier(fallback_mechanism):
+    """get the request token and verifier, using fallback_mechanism if we don't have one stashed"""
+    verifier_file = os.path.expanduser("~/.ztwit_" + "oauth_verifier")
+    if not os.path.exists(verifier_file):
+        fallback_mechanism(verifier_file)
+        if not os.path.exists(verifier_file):
+            raise Exception("Fallback Failed")
+    rt_key, rt_secret, at_key, at_secret, verifier = file(verifier_file, "r").read().strip().split(":", 4)
+    return rt_key, rt_secret, at_key, at_secret, verifier
 
-def embed_basicauth(url, user, passwd):
-    """stuff basicauth username/password into a url"""
-    # could use urllib2 and a real basicauth handler...
-    # but the url is constant, so be lazy.
-    assert url.startswith("http://")
-    tag, path = url.split("://", 1)
-    return tag + "://" + user + ":" + passwd + "@" + path
-
-assert "http://a:b@c/" == embed_basicauth("http://c/", "a", "b")
-
-def embed_since_id(url, since_id):
-    """add a since_id argument"""
-    # http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-statuses-friends_timeline
-    assert "?" not in url, "add support for merging since_id with other url args!"
-    return url + "?since_id=%s" % since_id
-
-def embed_backdoor(url):
-    """add basic auth back doorargument"""
-    # zephyr, via tibbetts
-    if "?" in url:
-        return url + "&source=twitterandroid"
-    else:
-        return url + "?source=twitterandroid"
+# do this with a localhost url?
 
 def zwrite(username, body, tag, status_id=None):
     """deliver one twitter message to zephyr"""
@@ -105,81 +81,42 @@ def entity_decode(txt):
 # turns out we don't actually see &amp; in practice...
 assert entity_decode("-&gt; &lt;3") == "-> <3"
 
-def process_new_twits(url=twit_url, tag=""):
+def process_new_twits(api, proto=None, tag=""):
     """process new messages, stashing markers"""
+    if proto is None:
+        proto = api.friends_timeline
+
     filebase = os.path.expanduser("~/.ztwit_")
-    username, pw = file(filebase + "auth", "r").read().strip().split(":", 1)
     if tag:
         filebase = filebase + tag + "_"
-    lastfile = filebase + "last"
-    etag = None
-    lastmod = None
-    if os.path.exists(lastfile):
-        etag, lastmod = file(lastfile, "r").read().splitlines()
-
-    newurl = embed_basicauth(url, username, pw)
-    
     sincefile = filebase + "since"
     since_id = None
     if os.path.exists(sincefile):
         since_id = file(sincefile, "r").read().strip()
-        if since_id: # allow for truncated file
-            newurl = embed_since_id(newurl, since_id)
+        # if since_id: # allow for truncated file
 
-    newurl = embed_backdoor(newurl)
-
-    try:
-        rawtwits, etag, lastmod = get_changed_content(newurl, etag, lastmod)
-    except IOError, ioe:
-        if ioe[0] == "http error":
-            # "http error" would be enough, given http_error_default, except
-            # that open_http gives a 1-arg one if host is empty...
-            try:
-                (kind, code, message, headers) = ioe
-            except IndexError:
-                raise ioe
-            if 500 <= code <= 599:
-                print >> sys.stderr, code, message, "-- sleeping"
-                time.sleep(90)
-                sys.exit()
-            else:
-                raise
-        elif ioe[0] == "http protocol error":
-            # IOError: ('http protocol error', 0, 'got a bad status line', None)
-            print >> sys.stderr, ioe, "-- sleeping"
-            time.sleep(90)
-            sys.exit()
-        elif IOError.errno == errno.ETIMEDOUT:
-            # IOError: [Errno socket error] (110, 'Connection timed out')
-            print >> sys.stderr, ioe, "-- sleeping longer"
-            time.sleep(90)
-            sys.exit()
-        # got one of these, but that should imply a bug on my side?
-        # IOError: ('http error', 400, 'Bad Request', <httplib.HTTPMessage instance at 0xb7b48d0c>)
-        # this one is special too...
-        # IOError: ('http error', 404, 'Not Found', <httplib.HTTPMessage instance at 0xb7ad5eec>)
-        # TODO: IOError: [Errno socket error] (104, 'Connection reset by peer')
-        else:
-            raise
-    if not rawtwits:
-        return # nothing new, don't update either
-    twits = simplejson.loads(rawtwits)
-    for twit in reversed(twits):
+    # the iterators *have* a prev, but there's no way to "start" at since_id?
+    # favorites.json doesn't take an id arg, and it's not like we save anything
+    # (other than parsing) by walking up and then down, since the json for the
+    # entire set is loaded anyway...
+    for twit in reversed(list(tweepy.Cursor(proto, since_id=since_id).items())):
+        # reversed?
         if not twit:
             print "huh? empty twit"
             continue
-        # who = twit["user"].get("screen_name", "Unknown Screen Name %r" % (twit["user"]))
-        who = twit["user"]["screen_name"]
-        what = entity_decode(twit["text"])
-        status_id = twit["id"]  # to construct a link
+        # type(twit) == tweepy.models.Status
+        # type(twit.author) == tweepy.models.User
+        who = twit.author.screen_name
+        what = entity_decode(twit.text)
+        status_id = twit.id_str  # to construct a link
         zwrite(who, what, tag, status_id)
         since_id = status_id
+        print "Sent:", since_id
+        time.sleep(3)
             
-    newlast = file(lastfile, "w")
-    print >> newlast, etag
-    print >> newlast, lastmod
-    newlast.close()
-
+    # Note that since_id is just an ordering - if I favorite an old tweet (even
+    # something that showed up new because it was freshly retweeted) it doesn't
+    # show up.  This isn't a new bug, I'm just noticing it...
     newsince = file(sincefile, "w")
     print >> newsince, since_id
     newsince.close()
@@ -187,6 +124,24 @@ def process_new_twits(url=twit_url, tag=""):
 if __name__ == "__main__":
     signal.alarm(5*60) # been seeing some hangs, give up after a bit
     prog, = sys.argv
-    process_new_twits()
-    process_new_twits(url=replies_url, tag="reply")
-    process_new_twits(url=favorites_url, tag="favorites")
+
+    rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_verifier_tty)
+    consumer_token, consumer_secret = get_oauth_info()
+    auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
+    auth.set_request_token(rt_key, rt_secret)
+    auth.set_access_token(at_key, at_secret)
+    print "ct:", consumer_token
+    print "cs:", consumer_secret
+    print "rk:", rt_key
+    print "rs:", rt_secret
+    print "vf:", verifier
+    print "ak:", at_key
+    print "as:", at_secret
+    api = tweepy.API(auth)
+
+    process_new_twits(api)
+    process_new_twits(api, proto=api.mentions, tag="reply")
+    # replies_url = "http://twitter.com/statuses/replies.json"
+    # but that's not in tweepy... try hacking it?
+    # hmm, not in http://apiwiki.twitter.com/w/page/22554679/Twitter-API-Documentation either
+    process_new_twits(api, proto=api.favorites, tag="favorites")

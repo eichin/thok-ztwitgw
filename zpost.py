@@ -7,45 +7,31 @@
 
 (mostly to share a common password file with ztwitgw)"""
 
-__version__ = "0.1"
+__version__ = "0.2"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
 import sys
-import os
-import urllib
+import tweepy
 import optparse
-import simplejson
-from ztwitgw import embed_basicauth, embed_backdoor, MyFancyURLopener
+from ztwitgw import get_oauth_info, get_verifier_tty, get_oauth_verifier
 
-urllib.URLopener.version = "thok.org-zpost.py/%s" % __version__
-
-# http://apiwiki.twitter.com/REST+API+Documentation says:
-# curl -u email:password -d status="your message here" http://twitter.com/statuses/update.xml 
-
-update_url = "http://twitter.com/statuses/update.json"
-
-def get_auth_info():
-    """get this user's auth info"""
-    filebase = os.path.expanduser("~/.ztwit_")
-    username, pw = file(filebase + "auth", "r").read().strip().split(":", 1)
-    return username, pw
-
+# NOTE: tweepy.error.TweepError: Read-only application cannot POST
+#   when using the ztwitgw key, need to register another or expand this one
 
 # TODO: retry on 408, maybe others?
-def zpost(body):
+def zpost(body, get_first_verifier=get_verifier_tty):
     """post body to twitter"""
     assert len(body) <= 140
-    username, pw = get_auth_info()
-    posturl = embed_basicauth(update_url, username, pw)
-    posturl = embed_backdoor(posturl)
-    uo = MyFancyURLopener()
-    u = uo.open(posturl, urllib.urlencode(dict(status=body)))
-    # let the exceptions bubble up
-    raw_s = u.read()
-    u.close()
-    s = simplejson.loads(raw_s)
-    return s
+
+    rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_first_verifier)
+
+    consumer_token, consumer_secret = get_oauth_info()
+    auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
+    auth.set_request_token(rt_key, rt_secret)
+    auth.set_access_token(at_key, at_secret)
+    api = tweepy.API(auth)
+    return api.update_status(body)
 
 if __name__ == "__main__":
     parser = optparse.OptionParser(usage=__doc__)
