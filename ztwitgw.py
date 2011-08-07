@@ -16,18 +16,22 @@ import subprocess
 import signal
 import tweepy
 import time
+import code
 
-def get_oauth_info():
+def get_oauth_info(appname=None):
     """get this user's oauth info"""
     filebase = os.path.expanduser("~/.ztwit_")
+    if appname:
+        # default path is ztwitgw
+        filebase += appname + "_"
     key, secret = file(filebase + "oauth", "r").read().strip().split(":", 1)
     return key, secret
 
 # TODO: write get_verifier_X11
 
-def get_verifier_tty(output_path):
+def get_verifier_tty(output_path, appname=None):
     """we don't have a verifier, ask the user to use a browser and get one"""
-    consumer_token, consumer_secret = get_oauth_info()
+    consumer_token, consumer_secret = get_oauth_info(appname=appname)
     auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
     redirect_url = auth.get_authorization_url() # tweepy.TweepError
     print "Open this URL in a browser where you're logged in to twitter:"
@@ -42,12 +46,32 @@ def get_verifier_tty(output_path):
                                             auth.access_token.secret,
                                             verifier]))
     
+def get_just_verifier(output_path, appname=None):
+    """ask for the verifier *without* having consumer info"""
+    auth = tweepy.OAuthHandler("", "")
+    # TODO: this can't work unless we first give the user a redirect to the
+    #    URL to *get* the response code. and possibly not then?
+    verifier = raw_input("Enter (cut&paste) the response code: ")
+    # use it...
+    auth.get_access_token(verifier)
+    # hmm, discard the verifier?
+    file(output_path, "wb").write(":".join([auth.request_token.key, 
+                                            auth.request_token.secret, 
+                                            auth.access_token.key,
+                                            auth.access_token.secret,
+                                            verifier]))
 
-def get_oauth_verifier(fallback_mechanism):
+
+
+def get_oauth_verifier(fallback_mechanism, appname=None):
     """get the request token and verifier, using fallback_mechanism if we don't have one stashed"""
-    verifier_file = os.path.expanduser("~/.ztwit_" + "oauth_verifier")
+    filebase = os.path.expanduser("~/.ztwit_")
+    if appname:
+        # default path is ztwitgw
+        filebase += appname + "_"
+    verifier_file = filebase + "oauth_verifier"
     if not os.path.exists(verifier_file):
-        fallback_mechanism(verifier_file)
+        fallback_mechanism(verifier_file, appname=appname)
         if not os.path.exists(verifier_file):
             raise Exception("Fallback Failed")
     rt_key, rt_secret, at_key, at_secret, verifier = file(verifier_file, "r").read().strip().split(":", 4)
@@ -109,6 +133,7 @@ def process_new_twits(api, proto=None, tag=""):
         who = twit.author.screen_name
         what = entity_decode(twit.text)
         status_id = twit.id_str  # to construct a link
+        # TODO: find t.co link translations in the object somewhere?
         zwrite(who, what, tag, status_id)
         since_id = status_id
         print "Sent:", since_id
