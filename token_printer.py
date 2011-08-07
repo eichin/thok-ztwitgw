@@ -20,9 +20,14 @@ __license__ = "MIT"
 import tweepy
 from ztwitgw import get_oauth_info
 
-def generate_url():
+def generate_url(appname):
     """Just give me a url [why does this ever change? *does* this ever change?]"""
-    consumer_token, consumer_secret = get_oauth_info()
+    consumer_token, consumer_secret = get_oauth_info(appname)
     auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
     redirect_url = auth.get_authorization_url()
     return redirect_url
+
+if __name__ == "__main__":
+    # doesn't take any input, so...
+    # really, this goes in a Location header
+    print generate_url("zpost")
