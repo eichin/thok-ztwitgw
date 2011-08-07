@@ -134,6 +134,8 @@ def process_new_twits(api, proto=None, tag=""):
         what = entity_decode(twit.text)
         status_id = twit.id_str  # to construct a link
         # TODO: find t.co link translations in the object somewhere?
+        #  - supposedly search.twitter.com/hugeurl is an expander, but not a high volume one
+        #  - nothing in the actual object, though .text has more "real" links these days anyway
         zwrite(who, what, tag, status_id)
         since_id = status_id
         print "Sent:", since_id
