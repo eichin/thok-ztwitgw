@@ -1,0 +1,14 @@
+Source: python-ztwit
+Section: unknown
+Priority: extra
+Maintainer: Mark Eichin <eichin@thok.org>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.1
+Homepage: http://thok.org/intranet/python/ztwit/README.html
+
+Package: python-ztwit
+Architecture: all
+Depends: ${misc:Depends}, python-oauth, python-tweepy
+Description: Zephyr/Twitter Gateway Tools
+ ztwitgw - Gateway to pull your personal twitter feed to a personal zephyr class
+ zpost - "zwrite-style" command-line tool for sending single twitter messages

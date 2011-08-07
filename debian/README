@@ -1,0 +1,7 @@
+The Debian Package python-ztwit
+-------------------------------
+
+"native" packaging for convenient use straight out of github.
+(dh_make -p python-ztwit_0.2 -i -c x11 --native)
+
+ -- Mark Eichin <eichin@thok.org>  Sat, 06 Aug 2011 23:11:52 -0400
