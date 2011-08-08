@@ -111,7 +111,7 @@ def url_expander(twit, body):
         # https://dev.twitter.com/docs/tweet-entities
         # do media later, stick with urls for now
         for urlblock in twit.entities.get("urls", []):
-            if "expanded_url" in urlblock:
+            if urlblock.get("expanded_url"):
                 low, high = urlblock["indices"]
                 body = body[:low] + urlblock["expanded_url"] + body[high:]
                 expcount += 1
