@@ -16,7 +16,6 @@ import subprocess
 import signal
 import tweepy
 import time
-import code
 
 def get_oauth_info(appname=None):
     """get this user's oauth info"""
@@ -105,6 +104,19 @@ def entity_decode(txt):
 # turns out we don't actually see &amp; in practice...
 assert entity_decode("-&gt; &lt;3") == "-> <3"
 
+def url_expander(twit, body):
+    """expand urls in the body, safely"""
+    try:
+        # https://dev.twitter.com/docs/tweet-entities
+        # do media later, stick with urls for now
+        for urlblock in twit.entities.get("urls", []):
+            if "expanded_url" in urlblock:
+                low, high = urlblock["indices"]
+                body = body[:low] + urlblock["expanded_url"] + body[high:]
+        return body
+    except Exception, exc:
+        return body + ("[expander failed: %s]" % exc)
+
 def process_new_twits(api, proto=None, tag=""):
     """process new messages, stashing markers"""
     if proto is None:
@@ -123,7 +135,7 @@ def process_new_twits(api, proto=None, tag=""):
     # favorites.json doesn't take an id arg, and it's not like we save anything
     # (other than parsing) by walking up and then down, since the json for the
     # entire set is loaded anyway...
-    for twit in reversed(list(tweepy.Cursor(proto, since_id=since_id).items())):
+    for twit in reversed(list(tweepy.Cursor(proto, since_id=since_id, include_entities=1).items())):
         # reversed?
         if not twit:
             print "huh? empty twit"
@@ -131,11 +143,8 @@ def process_new_twits(api, proto=None, tag=""):
         # type(twit) == tweepy.models.Status
         # type(twit.author) == tweepy.models.User
         who = twit.author.screen_name
-        what = entity_decode(twit.text)
+        what = entity_decode(url_expander(twit, twit.text))
         status_id = twit.id_str  # to construct a link
-        # TODO: find t.co link translations in the object somewhere?
-        #  - supposedly search.twitter.com/hugeurl is an expander, but not a high volume one
-        #  - nothing in the actual object, though .text has more "real" links these days anyway
         zwrite(who, what, tag, status_id)
         since_id = status_id
         print "Sent:", since_id
