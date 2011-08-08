@@ -106,6 +106,7 @@ assert entity_decode("-&gt; &lt;3") == "-> <3"
 
 def url_expander(twit, body):
     """expand urls in the body, safely"""
+    expcount = 0
     try:
         # https://dev.twitter.com/docs/tweet-entities
         # do media later, stick with urls for now
@@ -113,6 +114,9 @@ def url_expander(twit, body):
             if "expanded_url" in urlblock:
                 low, high = urlblock["indices"]
                 body = body[:low] + urlblock["expanded_url"] + body[high:]
+                expcount += 1
+        if expcount:
+            return body + ("\n[expanded %s urls]" % expcount)
         return body
     except Exception, exc:
         return body + ("[expander failed: %s]" % exc)
