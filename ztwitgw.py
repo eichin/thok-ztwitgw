@@ -108,13 +108,15 @@ def url_expander(twit, body):
     """expand urls in the body, safely"""
     expcount = 0
     urlcount = 0
+    offset = 0
     try:
         # https://dev.twitter.com/docs/tweet-entities
         # do media later, stick with urls for now
         for urlblock in twit.entities.get("urls", []):
             if urlblock.get("expanded_url"):
                 low, high = urlblock["indices"]
-                body = body[:low] + urlblock["expanded_url"] + body[high:]
+                body = body[:low+offset] + urlblock["expanded_url"] + body[high+offset:]
+                offset += len(urlblock["expanded_url"]) - (high - low)
                 expcount += 1
             urlcount += 1
         if expcount or urlcount:
