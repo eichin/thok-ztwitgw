@@ -1,2 +1,6 @@
 *.pyc
 *~
+/build/
+/debian/python-ztwit/
+/debian/files
+/debian/python-ztwit.*
