@@ -21,8 +21,11 @@ general_shorteners = set([
         "bit.ly",
         "j.mp",
         "dlvr.it",
-        "goog.gl",
+        "goo.gl",
 ])
+
+# feeds.feedburner.com is a (google) redirector, but at least the url is semi
+#   informative, if not final (and not shortened.) New category?
 
 # "local" shorteners let a site manage/track popular internal links directly,
 #  and make detailed urls more easily shareable.  As with other shorteners,
