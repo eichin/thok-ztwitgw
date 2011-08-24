@@ -16,6 +16,7 @@ import subprocess
 import signal
 import tweepy
 import time
+from lengthener import lengthen
 
 def get_oauth_info(appname=None):
     """get this user's oauth info"""
@@ -104,23 +105,46 @@ def entity_decode(txt):
 # turns out we don't actually see &amp; in practice...
 assert entity_decode("-&gt; &lt;3") == "-> <3"
 
+def maybe_lengthen(url):
+    """lengthen the url (with an old-ref) *or* leave it untouched"""
+    new_url = lengthen(url)
+    if not new_url:
+        return url
+    return "%s (via %s )" % (new_url, url)
+
+def slice_substitute(target, offset, low, high, replacement):
+    """substitute replacement into target in span low..high; return new target, new offset"""
+    target = target[:low+offset] + replacement + target[high+offset:]
+    offset += len(replacement) - (high - low)
+    return target, offset
+
+assert slice_substitute("abcdefghij", 0, 3, 6, "DEF") == ('abcDEFghij', 0)
+assert slice_substitute("abcdefghij", 0, 3, 6, "X") == ('abcXghij', -2)
+assert slice_substitute("abcdefghij", 0, 3, 6, "__DEF__") == ('abc__DEF__ghij', 4)
+
 def url_expander(twit, body):
     """expand urls in the body, safely"""
     expcount = 0
     urlcount = 0
+    longcount = 0
     offset = 0
     try:
         # https://dev.twitter.com/docs/tweet-entities
         # do media later, stick with urls for now
         for urlblock in twit.entities.get("urls", []):
+            low, high = urlblock["indices"]
             if urlblock.get("expanded_url"):
-                low, high = urlblock["indices"]
-                body = body[:low+offset] + urlblock["expanded_url"] + body[high+offset:]
-                offset += len(urlblock["expanded_url"]) - (high - low)
+                body, offset = slice_substitute(body, offset, low, high, 
+                                                maybe_lengthen(urlblock["expanded_url"]))
                 expcount += 1
+            else:
+                raw_replacement = maybe_lengthen(urlblock["url"])
+                if raw_replacement != urlblock["url"]:
+                    body, offset = slice_substitute(body, offset, low, high, raw_replacement)
+                longcount += 1
             urlcount += 1
-        if expcount or urlcount:
-            return body + ("\n[expanded %s/%s urls]" % (expcount, urlcount))
+        if expcount or urlcount or longcount:
+            return body + ("\n[expanded %s/%s urls, lengthened %s]" % (expcount, urlcount, longcount))
         return body
     except Exception, exc:
         return body + ("[expander failed: %s]" % exc)
