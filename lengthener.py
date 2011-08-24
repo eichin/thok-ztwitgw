@@ -24,6 +24,7 @@ general_shorteners = set([
         "j.mp",
         "dlvr.it",
         "goo.gl",
+        "is.gd",                # http://is.gd/ethics.php - also v.gd, but it is preview-only
 ])
 
 # feeds.feedburner.com is a (google) redirector, but at least the url is semi
