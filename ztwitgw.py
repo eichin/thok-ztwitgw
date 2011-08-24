@@ -141,7 +141,7 @@ def url_expander(twit, body):
                 raw_replacement = maybe_lengthen(urlblock["url"])
                 if raw_replacement != urlblock["url"]:
                     body, offset = slice_substitute(body, offset, low, high, raw_replacement)
-                longcount += 1
+                    longcount += 1
             urlcount += 1
         if expcount or urlcount or longcount:
             return body + ("\n[expanded %s/%s urls, lengthened %s]" % (expcount, urlcount, longcount))
