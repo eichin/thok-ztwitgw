@@ -19,6 +19,8 @@ import sys
 #   if I ever see anyone actually using them :-)
 general_shorteners = set([
         "bit.ly",
+        "ow.ly",
+        "ht.ly",                # another ow.ly/hootsuite shortener
         "j.mp",
         "dlvr.it",
         "goo.gl",
