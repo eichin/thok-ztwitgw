@@ -181,6 +181,7 @@ def process_new_twits(api, proto=None, tag=""):
         since_id = status_id
         print "Sent:", since_id
         time.sleep(3)
+        signal.alarm(5*60) # if we're actually making progress, push back the timeout
             
     # Note that since_id is just an ordering - if I favorite an old tweet (even
     # something that showed up new because it was freshly retweeted) it doesn't
