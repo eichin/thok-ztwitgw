@@ -82,7 +82,11 @@ def get_oauth_verifier(fallback_mechanism, appname=None):
 def zwrite(username, body, tag, status_id=None):
     """deliver one twitter message to zephyr"""
     # username... will get encoded when we see one
-    body = body.encode("iso-8859-1", "xmlcharrefreplace")
+    try:
+        body = body.encode("iso-8859-1", "xmlcharrefreplace")
+    except UnicodeDecodeError, ude:
+        body = repr(body) + ("\n[encode fail: %s]" % ude)
+        body = body.encode("iso-8859-1", "xmlcharrefreplace")
     # example syntax: http://twitter.com/engadget/status/18164103530
     zurl = " http://twitter.com/%s/status/%s" % (username, status_id) if status_id else ""
     zsig = "%s %s%svia ztwitgw%s" % (username, tag, tag and " ", zurl)
