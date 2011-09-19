@@ -25,6 +25,9 @@ general_shorteners = set([
         "dlvr.it",
         "goo.gl",
         "is.gd",                # http://is.gd/ethics.php - also v.gd, but it is preview-only
+        "1.usa.gov",
+        "awe.sm",               # http://totally.awe.sm/ "analytics for social media"
+        "wp.me",                # wordpress.com
 ])
 
 # feeds.feedburner.com is a (google) redirector, but at least the url is semi
@@ -45,6 +48,17 @@ local_shorteners = set([
         "nyti.ms",              # nytimes.com
         "4sq.com",              # foursquare.com
         "youtu.be",             # youtube.com
+        "bo.st",                # boston.com
+        "say.ly",               # whosay.com
+        "mysp.ac",              # myspace.com
+        "huff.po",              # huffingtonpost.com
+        "apne.ws",              # ap mobile
+        "kck.st",               # kickstarter.com
+        "yhoo.it",              # answers.yahoo.com, maybe more of yahoo
+        "read.bi",              # businessinsider.com
+        "gu.com",               # guardian.co.uk
+        "tnw.co",               # thenextweb.com
+        "sprkfn.com",           # sparkfun.com
 ])
 
 # can't use urllib2 for this - in order to avoid redirected POSTs, it turns
