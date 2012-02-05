@@ -59,6 +59,9 @@ local_shorteners = set([
         "gu.com",               # guardian.co.uk
         "tnw.co",               # thenextweb.com
         "sprkfn.com",           # sparkfun.com
+        "n.pr",                 # npr.org
+        "nydn.us",              # newyorkdailynews.com
+        "vrge.co",              # theverge.com
 ])
 
 # can't use urllib2 for this - in order to avoid redirected POSTs, it turns
