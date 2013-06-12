@@ -5,7 +5,7 @@
 
 """take recent twitters and zephyr them to me"""
 
-__version__ = "0.2"
+__version__ = "0.3"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
@@ -156,7 +156,7 @@ def url_expander(twit, body):
 def process_new_twits(api, proto=None, tag=""):
     """process new messages, stashing markers"""
     if proto is None:
-        proto = api.friends_timeline
+        proto = api.home_timeline
 
     filebase = os.path.expanduser("~/.ztwit_")
     if tag:
