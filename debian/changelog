@@ -1,7 +1,8 @@
 python-ztwit (0.3) unstable; urgency=low
 
-  * ztwitgw.py: Per https://dev.twitter.com/docs/api/get-statusesfriends_timeline
-    switch to api.home_timeline; using tweepy 2.0, no other changes were needed.
+  * ztwitgw.py: Per https://dev.twitter.com/docs/api/1.1 switch to
+    api.home_timeline and api.mentions_timeline; using tweepy 2.0, no
+    other changes were needed.
 
  -- Mark Eichin <eichin@thok.org>  Tue, 11 Jun 2013 23:03:45 -0400
 

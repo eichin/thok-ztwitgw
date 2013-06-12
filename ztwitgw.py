@@ -213,7 +213,7 @@ if __name__ == "__main__":
     api = tweepy.API(auth)
 
     process_new_twits(api)
-    process_new_twits(api, proto=api.mentions, tag="reply")
+    process_new_twits(api, proto=api.mentions_timeline, tag="reply")
     # replies_url = "http://twitter.com/statuses/replies.json"
     # but that's not in tweepy... try hacking it?
     # hmm, not in http://apiwiki.twitter.com/w/page/22554679/Twitter-API-Documentation either
