@@ -1,6 +1,6 @@
 from distutils.core import setup
 setup(name='ztwit',
-      version='0.3',
+      version='0.4',
       py_modules=['ztwitgw', 'zpost', 'lengthener'],
       description='Zephyr/Twitter Gateway Tools',
       author='Mark Eichin',

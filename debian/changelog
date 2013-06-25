@@ -1,3 +1,10 @@
+python-ztwit (0.4) unstable; urgency=low
+
+  * zpost.py: actually pass the consumer token, apparently that wasn't
+    actually optional...
+
+ -- Mark Eichin <eichin@thok.org>  Tue, 25 Jun 2013 19:04:22 -0400
+
 python-ztwit (0.3) unstable; urgency=low
 
   * ztwitgw.py: Per https://dev.twitter.com/docs/api/1.1 switch to

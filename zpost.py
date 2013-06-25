@@ -7,7 +7,7 @@
 
 (mostly to share a common password file with ztwitgw)"""
 
-__version__ = "0.2"
+__version__ = "0.4"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
