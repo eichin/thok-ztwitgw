@@ -14,7 +14,7 @@ __license__ = "MIT"
 import sys
 import tweepy
 import optparse
-from ztwitgw import get_verifier_tty, get_oauth_verifier, get_just_verifier
+from ztwitgw import get_verifier_tty, get_oauth_verifier, get_just_verifier, get_oauth_info
 
 # NOTE: tweepy.error.TweepError: Read-only application cannot POST
 #   when using the ztwitgw key, need to register another or expand this one
@@ -26,9 +26,8 @@ def zpost(body):
 
     rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_just_verifier, "zpost")
 
-    # took me too long to figure these args out - None, None blows up with
-    # "None object cannot be quoted" in urllib
-    auth = tweepy.OAuthHandler("", "")
+    consumer_token, consumer_secret = get_oauth_info("zpost")
+    auth = tweepy.OAuthHandler(consumer_token, consumer_secret, secure=True)
     auth.set_request_token(rt_key, rt_secret)
     auth.set_access_token(at_key, at_secret)
     api = tweepy.API(auth)
