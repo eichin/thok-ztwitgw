@@ -194,6 +194,14 @@ def process_new_twits(api, proto=None, tag=""):
     print >> newsince, since_id
     newsince.close()
 
+def display_rate_limit(tag, limit):
+    """Display rate limit if it isn't at maximum; return available count for convenience"""
+    if limit["remaining"] != limit["limit"]:
+        print limit["remaining"], "out of", limit["limit"], tag, "queries available"
+        reset_time = limit["reset"]
+        print "   Will reset in", reset_time - time.time(), "seconds, at", time.ctime(reset_time)
+    return limit["remaining"]
+
 if __name__ == "__main__":
     # This conflicts with the long-lag retry mode, so just turn it off for now
     # signal.alarm(5*60) # been seeing some hangs, give up after a bit
@@ -216,9 +224,17 @@ if __name__ == "__main__":
     # set the timeout to match the retry count
     api = tweepy.API(auth, retry_delay=16*60, retry_count=10, timeout=160*60)
 
-    process_new_twits(api)
-    process_new_twits(api, proto=api.mentions_timeline, tag="reply")
+    limits = api.rate_limit_status()
+    home_left = display_rate_limit("home", limits["resources"]["statuses"]["/statuses/home_timeline"])
+    ment_left = display_rate_limit("mentions", limits["resources"]["statuses"]["/statuses/mentions_timeline"])
+    fave_left = display_rate_limit("favorites", limits["resources"]["favorites"]["/favorites/list"])
+
+    if home_left > 0:
+        process_new_twits(api)
+    if ment_left > 0:
+        process_new_twits(api, proto=api.mentions_timeline, tag="reply")
     # replies_url = "http://twitter.com/statuses/replies.json"
     # but that's not in tweepy... try hacking it?
     # hmm, not in http://apiwiki.twitter.com/w/page/22554679/Twitter-API-Documentation either
-    process_new_twits(api, proto=api.favorites, tag="favorites")
+    if fave_left > 0:
+        process_new_twits(api, proto=api.favorites, tag="favorites")
