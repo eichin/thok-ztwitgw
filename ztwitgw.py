@@ -195,7 +195,8 @@ def process_new_twits(api, proto=None, tag=""):
     newsince.close()
 
 if __name__ == "__main__":
-    signal.alarm(5*60) # been seeing some hangs, give up after a bit
+    # This conflicts with the long-lag retry mode, so just turn it off for now
+    # signal.alarm(5*60) # been seeing some hangs, give up after a bit
     prog, = sys.argv
 
     rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_verifier_tty)
@@ -210,7 +211,10 @@ if __name__ == "__main__":
     print "vf:", verifier
     print "ak:", at_key
     print "as:", at_secret
-    api = tweepy.API(auth)
+    # request limits reset every 15 minutes, so retry in 16
+    # retry 10 times to allow us to get 3000 messages behind
+    # set the timeout to match the retry count
+    api = tweepy.API(auth, retry_delay=16*60, retry_count=10, timeout=160*60)
 
     process_new_twits(api)
     process_new_twits(api, proto=api.mentions_timeline, tag="reply")
