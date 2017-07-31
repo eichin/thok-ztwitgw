@@ -27,8 +27,7 @@ def zpost(body):
     rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_just_verifier, "zpost")
 
     consumer_token, consumer_secret = get_oauth_info("zpost")
-    auth = tweepy.OAuthHandler(consumer_token, consumer_secret, secure=True)
-    auth.set_request_token(rt_key, rt_secret)
+    auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
     auth.set_access_token(at_key, at_secret)
     api = tweepy.API(auth)
     return api.update_status(body)
