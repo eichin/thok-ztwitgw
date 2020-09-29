@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2011 Mark Eichin <eichin@thok.org>
 # See ./LICENSE (MIT style.)
@@ -6,7 +6,7 @@
 """Tool to print twitter access_tokens, run as a service, to avoid
    publishing consumer_key/consumer_secret."""
 
-__version__ = "0.2"
+__version__ = "0.5"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
@@ -30,4 +30,4 @@ def generate_url(appname):
 if __name__ == "__main__":
     # doesn't take any input, so...
     # really, this goes in a Location header
-    print generate_url("zpost")
+    print(generate_url("zpost"))

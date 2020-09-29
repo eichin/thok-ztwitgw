@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2008-2011 Mark Eichin <eichin@thok.org>
 # See ./LICENSE (MIT style.)
@@ -7,7 +7,7 @@
 
 (mostly to share a common password file with ztwitgw)"""
 
-__version__ = "0.4"
+__version__ = "0.5"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
@@ -44,13 +44,13 @@ if __name__ == "__main__":
         assert not options.message, "only auth"
         rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_verifier_tty, "zpost")
         # they get written out as a side effect, if we made it here, great
-        print "Auth completed."
+        print("Auth completed.")
         sys.exit()
 
     if options.message:
         message = " ".join(args)
-        print zpost(message)
+        print(zpost(message))
     else:
-        print "Type your message now.  End with control-D."
+        print("Type your message now.  End with control-D.")
         message = sys.stdin.read()
-        print zpost(message)
+        print(zpost(message))

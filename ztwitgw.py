@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2008-2011 Mark Eichin <eichin@thok.org>
 # See ./LICENSE (MIT style.)
 
 """take recent twitters and zephyr them to me"""
 
-__version__ = "0.4"
+__version__ = "0.5"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
@@ -14,8 +14,8 @@ import os
 import getpass
 import subprocess
 import signal
-import tweepy
 import time
+import tweepy
 from lengthener import lengthen
 
 def get_oauth_info(appname=None):
@@ -24,7 +24,7 @@ def get_oauth_info(appname=None):
     if appname:
         # default path is ztwitgw
         filebase += appname + "_"
-    key, secret = file(filebase + "oauth", "r").read().strip().split(":", 1)
+    key, secret = open(filebase + "oauth", "r").read().strip().split(":", 1)
     return key, secret
 
 # TODO: write get_verifier_X11
@@ -34,29 +34,29 @@ def get_verifier_tty(output_path, appname=None):
     consumer_token, consumer_secret = get_oauth_info(appname=appname)
     auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
     redirect_url = auth.get_authorization_url() # tweepy.TweepError
-    print "Open this URL in a browser where you're logged in to twitter:"
-    print redirect_url
-    verifier = raw_input("Enter (cut&paste) the response code: ")
+    print("Open this URL in a browser where you're logged in to twitter:")
+    print(redirect_url)
+    verifier = input("Enter (cut&paste) the response code: ")
     # use it...
     auth.get_access_token(verifier)
     # hmm, discard the verifier?
-    file(output_path, "wb").write(":".join([auth.request_token.key, 
-                                            auth.request_token.secret, 
+    open(output_path, "wb").write(":".join([auth.request_token.key,
+                                            auth.request_token.secret,
                                             auth.access_token.key,
                                             auth.access_token.secret,
                                             verifier]))
-    
+
 def get_just_verifier(output_path, appname=None):
     """ask for the verifier *without* having consumer info"""
     auth = tweepy.OAuthHandler("", "")
     # TODO: this can't work unless we first give the user a redirect to the
     #    URL to *get* the response code. and possibly not then?
-    verifier = raw_input("Enter (cut&paste) the response code: ")
+    verifier = input("Enter (cut&paste) the response code: ")
     # use it...
     auth.get_access_token(verifier)
     # hmm, discard the verifier?
-    file(output_path, "wb").write(":".join([auth.request_token.key, 
-                                            auth.request_token.secret, 
+    open(output_path, "wb").write(":".join([auth.request_token.key,
+                                            auth.request_token.secret,
                                             auth.access_token.key,
                                             auth.access_token.secret,
                                             verifier]))
@@ -74,7 +74,7 @@ def get_oauth_verifier(fallback_mechanism, appname=None):
         fallback_mechanism(verifier_file, appname=appname)
         if not os.path.exists(verifier_file):
             raise Exception("Fallback Failed")
-    rt_key, rt_secret, at_key, at_secret, verifier = file(verifier_file, "r").read().strip().split(":", 4)
+    rt_key, rt_secret, at_key, at_secret, verifier = open(verifier_file, "r").read().strip().split(":", 4)
     return rt_key, rt_secret, at_key, at_secret, verifier
 
 # do this with a localhost url?
@@ -84,7 +84,7 @@ def zwrite(username, body, tag, status_id=None):
     # username... will get encoded when we see one
     try:
         body = body.encode("iso-8859-1", "xmlcharrefreplace")
-    except UnicodeDecodeError, ude:
+    except UnicodeDecodeError as ude:
         body = repr(body) + ("\n[encode fail: %s]" % ude)
         body = body.encode("iso-8859-1", "xmlcharrefreplace")
     # example syntax: http://twitter.com/engadget/status/18164103530
@@ -99,7 +99,7 @@ def zwrite(username, body, tag, status_id=None):
            "-i", username,
            "-m", body]
     subprocess.check_call(cmd)
-           
+
 def entity_decode(txt):
     """decode simple entities"""
     # TODO: find out what ones twitter considers defined,
@@ -138,7 +138,7 @@ def url_expander(twit, body):
         for urlblock in twit.entities.get("urls", []):
             low, high = urlblock["indices"]
             if urlblock.get("expanded_url"):
-                body, offset = slice_substitute(body, offset, low, high, 
+                body, offset = slice_substitute(body, offset, low, high,
                                                 maybe_lengthen(urlblock["expanded_url"]))
                 expcount += 1
             else:
@@ -150,7 +150,7 @@ def url_expander(twit, body):
         if expcount or urlcount or longcount:
             return body + ("\n[expanded %s/%s urls, lengthened %s]" % (expcount, urlcount, longcount))
         return body
-    except Exception, exc:
+    except Exception as exc:
         return body + ("[expander failed: %s]" % exc)
 
 def process_new_twits(api, proto=None, tag=""):
@@ -164,7 +164,7 @@ def process_new_twits(api, proto=None, tag=""):
     sincefile = filebase + "since"
     since_id = None
     if os.path.exists(sincefile):
-        since_id = file(sincefile, "r").read().strip()
+        since_id = open(sincefile, "r").read().strip()
         # if since_id: # allow for truncated file
 
     # the iterators *have* a prev, but there's no way to "start" at since_id?
@@ -174,7 +174,7 @@ def process_new_twits(api, proto=None, tag=""):
     for twit in reversed(list(tweepy.Cursor(proto, since_id=since_id, include_entities=1).items())):
         # reversed?
         if not twit:
-            print "huh? empty twit"
+            print("huh? empty twit")
             continue
         # type(twit) == tweepy.models.Status
         # type(twit.author) == tweepy.models.User
@@ -183,23 +183,22 @@ def process_new_twits(api, proto=None, tag=""):
         status_id = twit.id_str  # to construct a link
         zwrite(who, what, tag, status_id)
         since_id = status_id
-        print "Sent:", since_id
+        print("Sent:", since_id)
         time.sleep(3)
         signal.alarm(5*60) # if we're actually making progress, push back the timeout
-            
+
     # Note that since_id is just an ordering - if I favorite an old tweet (even
     # something that showed up new because it was freshly retweeted) it doesn't
     # show up.  This isn't a new bug, I'm just noticing it...
-    newsince = file(sincefile, "w")
-    print >> newsince, since_id
-    newsince.close()
+    with open(sincefile, "w") as newsince:
+        print(since_id, file=newsince)
 
 def display_rate_limit(tag, limit):
     """Display rate limit if it isn't at maximum; return available count for convenience"""
     if limit["remaining"] != limit["limit"]:
-        print limit["remaining"], "out of", limit["limit"], tag, "queries available"
+        print(limit["remaining"], "out of", limit["limit"], tag, "queries available")
         reset_time = limit["reset"]
-        print "   Will reset in", reset_time - time.time(), "seconds, at", time.ctime(reset_time)
+        print("   Will reset in", reset_time - time.time(), "seconds, at", time.ctime(reset_time))
     return limit["remaining"]
 
 if __name__ == "__main__":
@@ -212,13 +211,13 @@ if __name__ == "__main__":
     auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
     auth.set_request_token(rt_key, rt_secret)
     auth.set_access_token(at_key, at_secret)
-    print "ct:", consumer_token
-    print "cs:", consumer_secret
-    print "rk:", rt_key
-    print "rs:", rt_secret
-    print "vf:", verifier
-    print "ak:", at_key
-    print "as:", at_secret
+    print("ct:", consumer_token)
+    print("cs:", consumer_secret)
+    print("rk:", rt_key)
+    print("rs:", rt_secret)
+    print("vf:", verifier)
+    print("ak:", at_key)
+    print("as:", at_secret)
     # request limits reset every 15 minutes, so retry in 16
     # retry 10 times to allow us to get 3000 messages behind
     # set the timeout to match the retry count

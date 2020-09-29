@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2011 Mark Eichin <eichin@thok.org>
 # See ./LICENSE (MIT style.)
 
 """un-shorten a url (if it's from a white-listed set of shorteners.)"""
 
-__version__ = "0.1"
+__version__ = "0.5"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
@@ -93,4 +93,4 @@ def lengthen(url):
 
 if __name__ == "__main__":
     for url in sys.argv[1:]:
-        print url, "->", lengthen(url)
+        print(url, "->", lengthen(url))
