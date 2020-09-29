@@ -12,8 +12,8 @@ __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
 import sys
-import tweepy
 import optparse
+import tweepy
 from ztwitgw import get_verifier_tty, get_oauth_verifier, get_just_verifier, get_oauth_info
 
 # NOTE: tweepy.error.TweepError: Read-only application cannot POST
