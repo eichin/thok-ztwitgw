@@ -1,3 +1,9 @@
+python-ztwit (0.5) unstable; urgency=medium
+
+  * python 3 port.
+
+ -- Mark Eichin <eichin@thok.org>  Tue, 29 Sep 2020 03:22:31 -0400
+
 python-ztwit (0.4) unstable; urgency=low
 
   * zpost.py: actually pass the consumer token, apparently that wasn't
