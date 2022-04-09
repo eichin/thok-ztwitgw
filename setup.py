@@ -1,7 +1,9 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
+
 setup(name='ztwit',
       version='0.4',
       py_modules=['ztwitgw', 'zpost', 'lengthener'],
+      packages=find_packages(),
       install_requires=[
           "tweepy",
           "oauth",
