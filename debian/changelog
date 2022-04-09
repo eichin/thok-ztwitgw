@@ -1,3 +1,9 @@
+python-ztwit (0.6) unstable; urgency=medium
+
+  * Ubuntu 22.04 (jammy) python 3.10 port
+
+ -- Mark Eichin <eichin@thok.org>  Sat, 09 Apr 2022 03:24:02 -0400
+
 python-ztwit (0.5) unstable; urgency=medium
 
   * python 3 port.
