@@ -22,7 +22,7 @@ from ztwitgw import get_verifier_tty, get_oauth_verifier, get_just_verifier, get
 # TODO: retry on 408, maybe others?
 def zpost(body):
     """post body to twitter"""
-    assert len(body) <= 140
+    assert len(body) <= 280
 
     rt_key, rt_secret, at_key, at_secret, verifier = get_oauth_verifier(get_just_verifier, "zpost")
 
