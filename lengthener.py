@@ -9,8 +9,8 @@ __version__ = "0.5"
 __author__  = "Mark Eichin <eichin@thok.org>"
 __license__ = "MIT"
 
-import httplib
-import urlparse
+import http.client
+import urllib.parse
 import sys
 
 # "general" shorteners allow end users (public or customers) to generate
@@ -75,7 +75,7 @@ local_shorteners = set([
 # No cookie support either, or specific user-agent, until we find we need one.
 def lengthen(url):
     """try to get a redirect, return the redirect if found"""
-    split_url = urlparse.urlsplit(url)
+    split_url = urllib.parse.urlsplit(url)
     if split_url.netloc not in general_shorteners and split_url.netloc not in local_shorteners:
         return
     if split_url.scheme != "http":
@@ -84,7 +84,7 @@ def lengthen(url):
         return
     if split_url.fragment:      # or add this back in?
         return
-    host_connection = httplib.HTTPConnection(split_url.netloc)
+    host_connection = http.client.HTTPConnection(split_url.netloc)
     host_connection.request("HEAD", split_url.path)
     head_response = host_connection.getresponse()
     location = head_response.getheader("location")
