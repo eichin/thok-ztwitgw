@@ -1,3 +1,9 @@
+python-ztwit (0.7) unstable; urgency=medium
+
+  * python3-ztwit.pydist: new file, so setup.py is sufficient in pojkar
+
+ -- Mark Eichin <eichin@thok.org>  Mon, 18 Apr 2022 01:47:04 -0400
+
 python-ztwit (0.6) unstable; urgency=medium
 
   * Ubuntu 22.04 (jammy) python 3.10 port

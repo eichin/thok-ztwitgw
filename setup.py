@@ -1,12 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(name='ztwit',
-      version='0.6',
+      version='0.7',
       py_modules=['ztwitgw', 'zpost', 'lengthener'],
       packages=find_packages(),
       install_requires=[
           "tweepy",
-          "oauth",
       ],
       description='Zephyr/Twitter Gateway Tools',
       author='Mark Eichin',
