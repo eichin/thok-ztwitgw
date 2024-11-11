@@ -1,3 +1,13 @@
+--- discontinued and archived ---
+
+As of April 2023, twitter suspended all applications using the API
+this was based on.  Since the important part of this (zpost) is easily
+accomplished by shelling out to toot
+(https://github.com/ihabunek/toot) there's no future in porting this,
+so I'm just archiving it.
+
+--- original README ---
+
 The MIT Zephyr Notification system is something I worked on in the
 late 1980's, and 20+ years later it is still supported and used (in a
 fairly narrow niche.)  For historical reasons, there is a small niche
